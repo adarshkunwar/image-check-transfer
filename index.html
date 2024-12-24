@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Base64 Example</title>
+</head>
+<body>
+    <h1>Upload an Image and Convert to Base64</h1>
+
+    <!-- File input for uploading an image -->
+    <input type="file" id="imageInput" accept="image/*">
+    
+    <div id="jsonOutput">
+        <h3>Generated JSON:</h3>
+        <pre id="jsonDisplay"></pre>
+    </div>
+
+    <h3>Image Preview from Base64 (Uploaded Image)</h3>
+    <img id="imagePreview" alt="Image Preview" style="max-width: 500px;"/>
+
+    <hr>
+
+    <h1>Paste JSON to Display Image</h1>
+
+    <!-- Text area for pasting JSON -->
+    <textarea id="jsonInput" placeholder="Paste JSON here..." rows="10" cols="50"></textarea>
+
+    <button id="displayImageButton">Display Image from JSON</button>
+
+    <div id="jsonImageOutput">
+        <h3>Image Preview from Pasted JSON:</h3>
+        <img id="jsonImagePreview" alt="Image from JSON" style="max-width: 500px;"/>
+    </div>
+
+    <script>
+        // Function to encode the image to Base64 and create JSON object
+        function encodeImageToBase64(file) {
+            const reader = new FileReader();
+
+            reader.onloadend = function () {
+                // Extract Base64 part from the result
+                const base64Image = reader.result.split(',')[1];
+
+                // Create JSON object
+                const jsonData = {
+                    name: "Sample Image",
+                    description: "This is a sample image description",
+                    image: base64Image
+                };
+
+                // Display the JSON object
+                document.getElementById("jsonDisplay").textContent = JSON.stringify(jsonData, null, 2);
+
+                // Show the image preview
+                document.getElementById("imagePreview").src = "data:image/png;base64," + base64Image;
+            };
+
+            // Read the image file as a Data URL (Base64)
+            reader.readAsDataURL(file);
+        }
+
+        // Event listener for the file input change
+        document.getElementById("imageInput").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                encodeImageToBase64(file);
+            }
+        });
+
+        // Function to handle pasting and displaying the image from JSON
+        function displayImageFromJSON() {
+            const jsonInput = document.getElementById("jsonInput").value;
+            try {
+                // Parse the pasted JSON
+                const parsedData = JSON.parse(jsonInput);
+
+                // Check if the parsed JSON contains a valid Base64 image
+                if (parsedData.image) {
+                    // Set the image preview based on the Base64 data
+                    document.getElementById("jsonImagePreview").src = "data:image/png;base64," + parsedData.image;
+                } else {
+                    alert("No valid image found in the pasted JSON.");
+                }
+            } catch (error) {
+                alert("Invalid JSON format.");
+            }
+        }
+
+        // Event listener for the button to display the image from the pasted JSON
+        document.getElementById("displayImageButton").addEventListener("click", displayImageFromJSON);
+    </script>
+</body>
+</html>
